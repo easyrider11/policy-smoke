@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "policy-smoke"
+version = "0.1.0"
+description = "CPU-only smoke tests that catch LeRobot policies which load fine but are silently degraded."
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Lang Li" }]
+requires-python = ">=3.12"
+dependencies = [
+    # diffusion extra pulls in `diffusers`, needed to build the Diffusion policy.
+    "lerobot[diffusion]>=0.6.1",
+    # imported directly; versions are bounded by lerobot
+    "draccus",
+    "safetensors",
+    "torch",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+policy-smoke = "policy_smoke.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/policy_smoke"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]

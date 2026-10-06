@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1" # weekly: notice when upstream lerobot changes behaviour
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # "0.6.1" is the version the xfail markers were written against.
+        # "latest" turns red when upstream fixes one of the documented bugs (strict xfail).
+        lerobot: ["0.6.1", "latest"]
+    env:
+      HF_HUB_OFFLINE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install CPU torch
+        # Bounds match lerobot 0.6.1's requirements so pip does not swap in a CUDA wheel later.
+        run: pip install "torch>=2.7,<2.12" "torchvision>=0.22,<0.27" --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install package
+        run: |
+          if [ "${{ matrix.lerobot }}" = "latest" ]; then
+            pip install -e ".[dev]" --upgrade --upgrade-strategy only-if-needed "lerobot[diffusion]"
+          else
+            pip install -e ".[dev]" "lerobot[diffusion]==${{ matrix.lerobot }}"
+          fi
+          pip list | grep -iE "^(lerobot|torch) "
+
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Test
+        run: pytest -q
