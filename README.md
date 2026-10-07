@@ -1,6 +1,6 @@
 # policy-smoke
 
-CPU-only smoke tests for [LeRobot](https://github.com/huggingface/lerobot) policies that catch "loads fine, silently degraded" bugs. No GPU, no model downloads, about 20 seconds on a laptop.
+CPU-only smoke tests for [LeRobot](https://github.com/huggingface/lerobot) policies that catch "loads fine, silently degraded" bugs. No GPU, no model downloads. A warm run takes 17 s on a 4-core Linux CI runner and 42 s on an M3 MacBook Air (the first run is slower while imports are cached).
 
 Every test builds a tiny, randomly initialised policy from a config object (6-dim state, 6-dim action, one 3x64x64 image or none), saves it with `save_pretrained`, reloads it with `from_pretrained`, and checks invariants. `HF_HUB_OFFLINE=1` is set for the whole run.
 
