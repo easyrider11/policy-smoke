@@ -78,9 +78,10 @@ The helpers are also importable: `policy_smoke.checks.load_strict_report(policy_
   - `smolvla`, `multi_task_dit`, `eo1`, `evo1`, `vla_jepa`: the constructor downloads a VLM or text encoder from huggingface.co.
   - `groot`, `molmoact2`: the constructor needs a Hub snapshot.
   - `pi0`, `pi05`, `lingbot_va`: build a multi-billion-parameter model; did not finish in 120 s on CPU.
-  - `pi0_fast`, `wall_x`: extra dependencies plus a Hub-hosted VLM.
+  - `pi0_fast`: needs `scipy` and loads its tokenizers from huggingface.co.
+  - `wall_x`: needs `peft` and builds on Qwen2.5-VL.
   - `xvla`: needs a full Florence-2 `vision_config`.
-  - `fastwam`: hard-codes a 7-dim action space and a large video model.
+  - `fastwam`: builds on the Wan2.2-TI2V-5B video model (`action_dim` defaults to 7; not tried with a smaller config).
 - Weights are random, so these checks prove plumbing (save, load, shapes, stats), not task performance.
 - `policy-smoke check` turns off `pretrained_backbone_weights` before building the model, so it never fetches torchvision weights. The checkpoint's own `model.safetensors` supplies those weights, and the key check confirms nothing is missing.
 - Language-conditioned policies need a `task` string in the observation; the CLI does not provide one.
